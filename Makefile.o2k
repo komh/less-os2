@@ -9,10 +9,10 @@ LIBEXECDIR = ${PREFIX}/libexecdir
 SYSDIR = ${PREFIX}/etc
 
 CC = gcc
-CFLAGS = -I. -O2 -Wall -DBINDIR=\"${BINDIR}\" -DLIBEXECDIR=\"${LIBEXECDIR}\" \
-         -DSYSDIR=\"${SYSDIR}\" \
-
-LDFLAGS = -s
+CFLAGS = -g -O2 -Wall -I. \
+         -DBINDIR=\"${BINDIR}\" -DLIBEXECDIR=\"${LIBEXECDIR}\" \
+         -DSYSDIR=\"${SYSDIR}\"
+LDFLAGS = -Zhigh-mem
 LIBS = -lncurses
 O = o
 
@@ -28,22 +28,31 @@ O = o
 OBJ = \
 	main.${O} screen.${O} brac.${O} ch.${O} charset.${O} cmdbuf.${O} \
 	command.${O} cvt.${O} decode.${O} edit.${O} evar.${O} filename.${O} forwback.${O} \
-	help.${O} ifile.${O} input.${O} jump.${O} lesskey_parse.${O} line.${O} linenum.${O} \
+	help.${O} ifile.${O} input.${O} jump.${O} \
+	line.${O} linenum.${O} \
 	lsystem.${O} mark.${O} optfunc.${O} option.${O} opttbl.${O} os.${O} \
 	output.${O} pattern.${O} position.${O} prompt.${O} search.${O} signal.${O} \
 	tags.${O} ttyin.${O} version.${O} xbuf.${O}
 
+OBJ += lesskey_parse.${O}
+
 .PHONY: all clean
 
-all: less.exe lesskey.exe
+all: less.exe lesskey.exe lessecho.exe
 
 less.exe: ${OBJ}
-	${CC} ${OBJ} -o $@ ${LDFLAGS} ${LIBS}
+	${CC} ${LDFLAGS} -o $@ ${OBJ} ${LIBS}
 
 lesskey.exe: lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O}
-	${CC} lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O} -o $@ ${LDFLAGS}
+	${CC} ${LDFLAGS}  -o $@ lesskey.${O} lesskey_parse.${O} version.${O} xbuf.${O}
 
-${OBJ}: defines.h less.h
+lessecho.exe: lessecho.${O} version.${O}
+	${CC} ${LDFLAGS} -o $@ lessecho.${O} version.${O} ${LIBS}
+
+${OBJ}: less.h funcs.h defines.h lang.h pattern.h xbuf.h
+
+charset.$(O): compose.uni ubin.uni wide.uni
+screen.${O} ttyin.${O}: pckeys.h
 
 defines.h: defines.o2k
 	copy defines.o2k defines.h
