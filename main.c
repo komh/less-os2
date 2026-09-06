@@ -217,8 +217,8 @@ int main(int argc, constant char *argv[])
 #endif
 
 #ifdef __EMX__
-	_response(&argc, &argv);
-	_wildcard(&argc, &argv);
+	_response(&argc, (char ***) &argv);
+	_wildcard(&argc, (char ***) &argv);
 #endif
 
 	progname = *argv++;
