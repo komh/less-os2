@@ -12,7 +12,7 @@ CC = gcc
 CFLAGS = -g -O2 -Wall -I. \
          -DBINDIR=\"${BINDIR}\" -DLIBEXECDIR=\"${LIBEXECDIR}\" \
          -DSYSDIR=\"${SYSDIR}\"
-LDFLAGS = -Zhigh-mem
+LDFLAGS = -Zhigh-mem -Wl,-static
 LIBS = -lncurses
 O = o
 
