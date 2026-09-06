@@ -50,6 +50,11 @@ extern int fd0;
 
 #else
 
+#ifdef __KLIBC__
+#define INCL_VIO
+#include <os2.h>
+#endif
+
 #if HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -1674,6 +1679,7 @@ public void get_term(void)
 		sc_addline = t1;
 	else
 		sc_addline = cheaper(t1, t2, "");
+#ifndef __KLIBC__
 	if (*sc_addline == '\0')
 	{
 		/*
@@ -1681,6 +1687,7 @@ public void get_term(void)
 		 */
 		no_back_scroll = TRUE;
 	}
+#endif
 }
 #endif /* MSDOS_COMPILER */
 }
@@ -2144,7 +2151,13 @@ public void add_line(void)
 {
 	assert_interactive();
 #if !MSDOS_COMPILER
+#ifndef __KLIBC__
 	ltputs(sc_addline, sc_height, putchr);
+#else
+	flush();
+	VioScrollDn(0, 0, sc_height - 1, sc_width - 1, 1, (PBYTE) "\x20\x07", 0);
+	VioSetCurPos(0, 0, 0);
+#endif
 #else
 	flush();
 #if MSDOS_COMPILER==MSOFTC
